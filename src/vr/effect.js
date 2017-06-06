@@ -249,8 +249,6 @@ function VREffect(renderer, onError) {
 
     }
 
-    console.log(navigator.getVRDisplays);
-
     if (navigator.getVRDisplays) {
 
         navigator.getVRDisplays().then(gotVRDisplays).catch(function () {

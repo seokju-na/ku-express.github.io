@@ -54,3 +54,36 @@ export function getHelpMessageElement(callback) {
         }
     });
 }
+
+export function getButton(display, canvas) {
+    const button = document.createElement('button');
+    button.style.position = 'absolute';
+    button.style.left = 'calc(50% - 50px)';
+    button.style.bottom = '20px';
+    button.style.width = '100px';
+    button.style.border = '0';
+    button.style.padding = '8px';
+    button.style.cursor = 'pointer';
+    button.style.backgroundColor = '#000';
+    button.style.color = '#fff';
+    button.style.fontFamily = 'sans-serif';
+    button.style.fontSize = '13px';
+    button.style.fontStyle = 'normal';
+    button.style.textAlign = 'center';
+    button.style.zIndex = '999';
+
+    if (display) {
+        button.textContent = 'ENTER VR';
+        button.onclick = function onButtonClick() {
+            display.isPresenting ? display.exitPresent() : display.requestPresent([{ source: canvas }]);
+        };
+
+        window.addEventListener('vrdisplaypresentchange', () => {
+            button.textContent = display.isPresenting ? 'EXIT VR' : 'ENTER VR';
+        });
+    } else {
+        button.textContent = 'NO VR DISPLAY';
+    }
+
+    return button;
+}

@@ -1,3 +1,5 @@
+var PI2 = Math.PI * 2;
+
 class RollerCoasterGeometry extends THREE.BufferGeometry {
     constructor(curve, divisions) {
         super();
@@ -32,6 +34,14 @@ class RollerCoasterGeometry extends THREE.BufferGeometry {
             new THREE.Vector3(0.225, 0, 0),
             new THREE.Vector3(0, -0.175, 0)
         ];
+
+        var step1 = [ ];
+        for ( var i = 0; i < 5; i ++ ) {
+
+            var angle = ( i / 5 ) * PI2;	//angle이 72, 144, 216, 288, 360 다섯 가지가 됨
+            step1.push( new THREE.Vector3(0 , Math.sin( angle ) * 0.02, Math.cos( angle ) * 0.02 ) );
+
+        }
 
         var PI2 = Math.PI * 2;
 
@@ -99,6 +109,9 @@ class RollerCoasterGeometry extends THREE.BufferGeometry {
         var normal2 = new THREE.Vector3();
         var normal3 = new THREE.Vector3();
         var normal4 = new THREE.Vector3();
+
+        var fromPoint = new THREE.Vector3();
+        var toPoint = new THREE.Vector3();
 
         function extrudeShape(shape, offset, color) {
 
@@ -168,7 +181,76 @@ class RollerCoasterGeometry extends THREE.BufferGeometry {
 
             }
 
-        };
+        }
+
+        function extrudeShapeSide( shape, fromPoint, toPoint, color ) {
+
+            for ( var j = 0, jl = shape.length; j < jl; j ++ ) {
+
+                var point1 = shape[ j ];
+                var point2 = shape[ ( j + 1 ) % jl ];
+
+                vector1.copy( point1 );
+                vector1.applyQuaternion( quaternion );
+                vector1.add( fromPoint );
+
+                vector2.copy( point2 );
+                vector2.applyQuaternion( quaternion );
+                vector2.add( fromPoint );
+
+                vector3.copy( point2 );
+                vector3.applyQuaternion( quaternion );
+                vector3.add( toPoint );
+
+                vector4.copy( point1 );
+                vector4.applyQuaternion( quaternion );
+                vector4.add( toPoint );
+
+                vertices.push( vector1.x, vector1.y, vector1.z );
+                vertices.push( vector2.x, vector2.y, vector2.z );
+                vertices.push( vector4.x, vector4.y, vector4.z );
+
+                vertices.push( vector2.x, vector2.y, vector2.z );
+                vertices.push( vector3.x, vector3.y, vector3.z );
+                vertices.push( vector4.x, vector4.y, vector4.z );
+
+                //
+
+                normal1.copy( point1 );
+                normal1.applyQuaternion( quaternion );
+                normal1.normalize();
+
+                normal2.copy( point2 );
+                normal2.applyQuaternion( quaternion );
+                normal2.normalize();
+
+                normal3.copy( point2 );
+                normal3.applyQuaternion( quaternion );
+                normal3.normalize();
+
+                normal4.copy( point1 );
+                normal4.applyQuaternion( quaternion );
+                normal4.normalize();
+
+                normals.push( normal1.x, normal1.y, normal1.z );
+                normals.push( normal2.x, normal2.y, normal2.z );
+                normals.push( normal4.x, normal4.y, normal4.z );
+
+                normals.push( normal2.x, normal2.y, normal2.z );
+                normals.push( normal3.x, normal3.y, normal3.z );
+                normals.push( normal4.x, normal4.y, normal4.z );
+
+                colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+                colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+                colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+
+                colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+                colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+                colors.push( color[ 0 ], color[ 1 ], color[ 2 ] );
+
+            }
+
+        }
 
         var offset = new THREE.Vector3();
 
@@ -187,9 +269,23 @@ class RollerCoasterGeometry extends THREE.BufferGeometry {
             quaternion.setFromAxisAngle(up, angle);
 
             if (i % 2 === 0) {
+                fromPoint.set(-0.2,-0.02,0);
+                fromPoint.applyQuaternion( quaternion );
+                fromPoint.add( point );
 
-                drawShape(step, color2);
+                toPoint.set(0,-0.135,0);
+                toPoint.applyQuaternion( quaternion );
+                toPoint.add( point );
+                extrudeShapeSide(step1, fromPoint, toPoint, color2);
 
+                fromPoint.set(0.2,-0.02,0);
+                fromPoint.applyQuaternion( quaternion );
+                fromPoint.add( point );
+
+                toPoint.set(0,-0.135,0);
+                toPoint.applyQuaternion( quaternion );
+                toPoint.add( point );
+                extrudeShapeSide(step1, fromPoint, toPoint, color2);
             }
 
             extrudeShape(tube1, offset.set(0, -0.125, 0), color2);

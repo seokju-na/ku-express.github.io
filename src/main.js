@@ -1,10 +1,13 @@
-import RollerCoasterGeometry from './geometries/roller-coaster';
+import { rollerCoasterMeshFactory } from './roller-coaster';
+import { rollerCoasterLifterMeshFactory } from './roller-coaster-lifter';
+import { rollerCoasterShadowMeshFactory } from './roller-coaster-shadow';
+import { groundMeshFactory } from './ground';
 import VRControl from './vr/control';
 import VREffect from './vr/effect';
-import { isWebVRAvailable, getHelpMessageElement } from './vr/utils';
+import * as vrUtils from './vr/utils';
 
-if (!isWebVRAvailable()) {
-    getHelpMessageElement((element) => {
+if (!vrUtils.isWebVRAvailable()) {
+    vrUtils.getHelpMessageElement((element) => {
         document.body.appendChild(element);
     });
 }
@@ -60,18 +63,37 @@ const curve = (() => {
     }
 })();
 
-const rollerCoasterGeometry = new RollerCoasterGeometry(curve, 1500);
-const material = new THREE.MeshPhongMaterial({
-    vertexColors: THREE.VertexColors
-});
-const mesh = new THREE.Mesh(rollerCoasterGeometry, material);
-scene.add(mesh);
+const rollerCoasterMesh = rollerCoasterMeshFactory(curve, 1500);
+scene.add(rollerCoasterMesh);
+
+// Roller coaster lifters
+const rollerCoasterLifterMesh = rollerCoasterLifterMeshFactory(curve, 100);
+scene.add(rollerCoasterLifterMesh);
+
+// Roller coaster shadow
+const rollerCoasterShadowMesh = rollerCoasterShadowMeshFactory(curve, 500);
+scene.add(rollerCoasterShadowMesh);
+
+// Terrain
+groundMeshFactory(scene, 500, 500);
+scene.background = new THREE.CubeTextureLoader()
+    .setPath('../images/')
+    .load(['left.bmp', 'right.bmp', 'top.bmp', 'bottom.bmp', 'front.bmp', 'back.bmp']);
 
 // VR
 const control = new VRControl(camera);
 const effect = new VREffect(renderer);
 
 control.init();
+
+vrUtils.getVRDisplay((err, display) => {
+    if (err) {
+        return;
+    }
+
+    const buttonElem = vrUtils.getButton(display, renderer.domElement);
+    document.body.appendChild(buttonElem);
+});
 
 window.addEventListener('resize', () => {
     camera.aspect = window.innerWidth / window.innerHeight;
