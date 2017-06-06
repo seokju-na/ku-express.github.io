@@ -1,0 +1,25 @@
+{
+  "name": "ku-express",
+  "version": "1.0.0",
+  "description": "KU express: roller coaster simluation for web vr",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "./node_modules/.bin/webpack --watch"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ku-express/ku-express.github.io.git"
+  },
+  "author": "",
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/ku-express/ku-express.github.io/issues"
+  },
+  "homepage": "https://github.com/ku-express/ku-express.github.io#readme",
+  "devDependencies": {
+    "babel-core": "^6.24.1",
+    "babel-loader": "^7.0.0",
+    "babel-preset-es2015": "^6.24.1",
+    "webpack": "^2.6.1"
+  }
+}
