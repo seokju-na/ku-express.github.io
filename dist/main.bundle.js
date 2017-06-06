@@ -63,7 +63,7 @@
 /******/ 	__webpack_require__.p = "";
 /******/
 /******/ 	// Load entry module and return exports
-/******/ 	return __webpack_require__(__webpack_require__.s = 8);
+/******/ 	return __webpack_require__(__webpack_require__.s = 7);
 /******/ })
 /************************************************************************/
 /******/ ([
@@ -167,8 +167,79 @@ function getButton(display, canvas) {
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = groundMeshFactory;
+function groundMeshFactory(scene, width, height) {
+    const geometry = new THREE.PlaneBufferGeometry(width, height, 15, 15);
+    geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
+
+    const positions = geometry.attributes.position.array;
+    const vertex = new THREE.Vector3();
+
+    for (let i = 0; i < positions.length; i += 3) {
+        vertex.fromArray(positions, i);
+        vertex.x += Math.random() * 10 - 5;
+        vertex.z += Math.random() * 10 - 5;
+        const distance = vertex.distanceTo(scene.position) / 5 - 25;
+        vertex.y = Math.random() * Math.max(0, distance);
+        vertex.toArray(positions, i);
+    }
+    geometry.computeVertexNormals();
+
+    const material = new THREE.MeshLambertMaterial({
+        color: 0x407000
+    });
+
+    const mesh = new THREE.Mesh(geometry, material);
+    scene.add(mesh);
+}
+
+/***/ }),
+/* 2 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = rollerCoasterLifterMeshFactory;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry__ = __webpack_require__(8);
+
+
+function rollerCoasterLifterMeshFactory(curve, divisions) {
+    const geometry = new __WEBPACK_IMPORTED_MODULE_0__geometry__["a" /* default */](curve, divisions);
+    const material = new THREE.MeshPhongMaterial();
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.position.y = 0.1;
+
+    return mesh;
+}
+
+/***/ }),
+/* 3 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+/* harmony export (immutable) */ __webpack_exports__["a"] = rollerCoasterShadowMeshFactory;
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry__ = __webpack_require__(9);
+
+
+function rollerCoasterShadowMeshFactory(curve, divisions) {
+    const geometry = new __WEBPACK_IMPORTED_MODULE_0__geometry__["a" /* default */](curve, divisions);
+    const material = new THREE.MeshBasicMaterial({
+        color: 0x305000, depthWrite: false, transparent: true
+    });
+    const mesh = new THREE.Mesh(geometry, material);
+
+    mesh.position.y = 0.1;
+
+    return mesh;
+}
+
+/***/ }),
+/* 4 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
 /* harmony export (immutable) */ __webpack_exports__["a"] = rollerCoasterMeshFactory;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__roller_coaster__ = __webpack_require__(14);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__roller_coaster__ = __webpack_require__(10);
 
 
 function rollerCoasterMeshFactory(curve, divisions) {
@@ -181,8 +252,7 @@ function rollerCoasterMeshFactory(curve, divisions) {
 }
 
 /***/ }),
-/* 2 */,
-/* 3 */
+/* 5 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -268,7 +338,7 @@ class VRControl {
 /* harmony default export */ __webpack_exports__["a"] = (VRControl);
 
 /***/ }),
-/* 4 */
+/* 6 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -907,20 +977,17 @@ function VREffect(renderer, onError) {
 /* harmony default export */ __webpack_exports__["a"] = (VREffect);
 
 /***/ }),
-/* 5 */,
-/* 6 */,
-/* 7 */,
-/* 8 */
+/* 7 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
 Object.defineProperty(__webpack_exports__, "__esModule", { value: true });
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__roller_coaster__ = __webpack_require__(1);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__roller_coaster_lifter__ = __webpack_require__(15);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__roller_coaster_shadow__ = __webpack_require__(17);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ground__ = __webpack_require__(19);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__vr_control__ = __webpack_require__(3);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__vr_effect__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__roller_coaster__ = __webpack_require__(4);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__roller_coaster_lifter__ = __webpack_require__(2);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__roller_coaster_shadow__ = __webpack_require__(3);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__ground__ = __webpack_require__(1);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__vr_control__ = __webpack_require__(5);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__vr_effect__ = __webpack_require__(6);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__vr_utils__ = __webpack_require__(0);
 
 
@@ -1053,12 +1120,245 @@ function animate(time) {
 effect.requestAnimationFrame(animate);
 
 /***/ }),
-/* 9 */,
-/* 10 */,
-/* 11 */,
-/* 12 */,
-/* 13 */,
-/* 14 */
+/* 8 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+function RollerCoasterLiftersGeometry(curve, divisions) {
+
+    THREE.BufferGeometry.call(this);
+
+    var vertices = [];
+    var normals = [];
+
+    var quaternion = new THREE.Quaternion();
+
+    var up = new THREE.Vector3(0, 1, 0);
+
+    var point = new THREE.Vector3();
+    var tangent = new THREE.Vector3();
+
+    // shapes
+
+    var tube1 = [new THREE.Vector3(0, 0.05, -0.05), new THREE.Vector3(0, 0.05, 0.05), new THREE.Vector3(0, -0.05, 0)];
+
+    var tube2 = [new THREE.Vector3(-0.05, 0, 0.05), new THREE.Vector3(-0.05, 0, -0.05), new THREE.Vector3(0.05, 0, 0)];
+
+    var tube3 = [new THREE.Vector3(0.05, 0, -0.05), new THREE.Vector3(0.05, 0, 0.05), new THREE.Vector3(-0.05, 0, 0)];
+
+    var vector1 = new THREE.Vector3();
+    var vector2 = new THREE.Vector3();
+    var vector3 = new THREE.Vector3();
+    var vector4 = new THREE.Vector3();
+
+    var normal1 = new THREE.Vector3();
+    var normal2 = new THREE.Vector3();
+    var normal3 = new THREE.Vector3();
+    var normal4 = new THREE.Vector3();
+
+    function extrudeShape(shape, fromPoint, toPoint) {
+
+        for (var j = 0, jl = shape.length; j < jl; j++) {
+
+            var point1 = shape[j];
+            var point2 = shape[(j + 1) % jl];
+
+            vector1.copy(point1);
+            vector1.applyQuaternion(quaternion);
+            vector1.add(fromPoint);
+
+            vector2.copy(point2);
+            vector2.applyQuaternion(quaternion);
+            vector2.add(fromPoint);
+
+            vector3.copy(point2);
+            vector3.applyQuaternion(quaternion);
+            vector3.add(toPoint);
+
+            vector4.copy(point1);
+            vector4.applyQuaternion(quaternion);
+            vector4.add(toPoint);
+
+            vertices.push(vector1.x, vector1.y, vector1.z);
+            vertices.push(vector2.x, vector2.y, vector2.z);
+            vertices.push(vector4.x, vector4.y, vector4.z);
+
+            vertices.push(vector2.x, vector2.y, vector2.z);
+            vertices.push(vector3.x, vector3.y, vector3.z);
+            vertices.push(vector4.x, vector4.y, vector4.z);
+
+            //
+
+            normal1.copy(point1);
+            normal1.applyQuaternion(quaternion);
+            normal1.normalize();
+
+            normal2.copy(point2);
+            normal2.applyQuaternion(quaternion);
+            normal2.normalize();
+
+            normal3.copy(point2);
+            normal3.applyQuaternion(quaternion);
+            normal3.normalize();
+
+            normal4.copy(point1);
+            normal4.applyQuaternion(quaternion);
+            normal4.normalize();
+
+            normals.push(normal1.x, normal1.y, normal1.z);
+            normals.push(normal2.x, normal2.y, normal2.z);
+            normals.push(normal4.x, normal4.y, normal4.z);
+
+            normals.push(normal2.x, normal2.y, normal2.z);
+            normals.push(normal3.x, normal3.y, normal3.z);
+            normals.push(normal4.x, normal4.y, normal4.z);
+        }
+    };
+
+    var fromPoint = new THREE.Vector3();
+    var toPoint = new THREE.Vector3();
+
+    for (var i = 1; i <= divisions; i++) {
+
+        point.copy(curve.getPointAt(i / divisions));
+        tangent.copy(curve.getTangentAt(i / divisions));
+
+        var angle = Math.atan2(tangent.x, tangent.z);
+
+        quaternion.setFromAxisAngle(up, angle);
+
+        //
+
+        if (point.y > 10) {
+
+            fromPoint.set(-0.75, -0.35, 0);
+            fromPoint.applyQuaternion(quaternion);
+            fromPoint.add(point);
+
+            toPoint.set(0.75, -0.35, 0);
+            toPoint.applyQuaternion(quaternion);
+            toPoint.add(point);
+
+            extrudeShape(tube1, fromPoint, toPoint);
+
+            fromPoint.set(-0.7, -0.3, 0);
+            fromPoint.applyQuaternion(quaternion);
+            fromPoint.add(point);
+
+            toPoint.set(-0.7, -point.y, 0);
+            toPoint.applyQuaternion(quaternion);
+            toPoint.add(point);
+
+            extrudeShape(tube2, fromPoint, toPoint);
+
+            fromPoint.set(0.7, -0.3, 0);
+            fromPoint.applyQuaternion(quaternion);
+            fromPoint.add(point);
+
+            toPoint.set(0.7, -point.y, 0);
+            toPoint.applyQuaternion(quaternion);
+            toPoint.add(point);
+
+            extrudeShape(tube3, fromPoint, toPoint);
+        } else {
+
+            fromPoint.set(0, -0.2, 0);
+            fromPoint.applyQuaternion(quaternion);
+            fromPoint.add(point);
+
+            toPoint.set(0, -point.y, 0);
+            toPoint.applyQuaternion(quaternion);
+            toPoint.add(point);
+
+            extrudeShape(tube3, fromPoint, toPoint);
+        }
+    }
+
+    this.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+    this.addAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), 3));
+}
+
+RollerCoasterLiftersGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
+
+/* harmony default export */ __webpack_exports__["a"] = (RollerCoasterLiftersGeometry);
+
+/***/ }),
+/* 9 */
+/***/ (function(module, __webpack_exports__, __webpack_require__) {
+
+"use strict";
+function RollerCoasterShadowGeometry(curve, divisions) {
+
+    THREE.BufferGeometry.call(this);
+
+    var vertices = [];
+
+    var up = new THREE.Vector3(0, 1, 0);
+    var forward = new THREE.Vector3();
+
+    var quaternion = new THREE.Quaternion();
+    var prevQuaternion = new THREE.Quaternion();
+    prevQuaternion.setFromAxisAngle(up, Math.PI / 2);
+
+    var point = new THREE.Vector3();
+
+    var prevPoint = new THREE.Vector3();
+    prevPoint.copy(curve.getPointAt(0));
+    prevPoint.y = 0;
+
+    var vector1 = new THREE.Vector3();
+    var vector2 = new THREE.Vector3();
+    var vector3 = new THREE.Vector3();
+    var vector4 = new THREE.Vector3();
+
+    for (var i = 1; i <= divisions; i++) {
+
+        point.copy(curve.getPointAt(i / divisions));
+        point.y = 0;
+
+        forward.subVectors(point, prevPoint);
+
+        var angle = Math.atan2(forward.x, forward.z);
+
+        quaternion.setFromAxisAngle(up, angle);
+
+        vector1.set(-0.3, 0, 0);
+        vector1.applyQuaternion(quaternion);
+        vector1.add(point);
+
+        vector2.set(0.3, 0, 0);
+        vector2.applyQuaternion(quaternion);
+        vector2.add(point);
+
+        vector3.set(0.3, 0, 0);
+        vector3.applyQuaternion(prevQuaternion);
+        vector3.add(prevPoint);
+
+        vector4.set(-0.3, 0, 0);
+        vector4.applyQuaternion(prevQuaternion);
+        vector4.add(prevPoint);
+
+        vertices.push(vector1.x, vector1.y, vector1.z);
+        vertices.push(vector2.x, vector2.y, vector2.z);
+        vertices.push(vector4.x, vector4.y, vector4.z);
+
+        vertices.push(vector2.x, vector2.y, vector2.z);
+        vertices.push(vector3.x, vector3.y, vector3.z);
+        vertices.push(vector4.x, vector4.y, vector4.z);
+
+        prevPoint.copy(point);
+        prevQuaternion.copy(quaternion);
+    }
+
+    this.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
+};
+
+RollerCoasterShadowGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
+
+/* harmony default export */ __webpack_exports__["a"] = (RollerCoasterShadowGeometry);
+
+/***/ }),
+/* 10 */
 /***/ (function(module, __webpack_exports__, __webpack_require__) {
 
 "use strict";
@@ -1360,315 +1660,6 @@ function RollerCoasterGeometry(curve, divisions) {
 RollerCoasterGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
 
 /* harmony default export */ __webpack_exports__["a"] = (RollerCoasterGeometry);
-
-/***/ }),
-/* 15 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = rollerCoasterLifterMeshFactory;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry__ = __webpack_require__(16);
-
-
-function rollerCoasterLifterMeshFactory(curve, divisions) {
-    const geometry = new __WEBPACK_IMPORTED_MODULE_0__geometry__["a" /* default */](curve, divisions);
-    const material = new THREE.MeshPhongMaterial();
-    const mesh = new THREE.Mesh(geometry, material);
-
-    mesh.position.y = 0.1;
-
-    return mesh;
-}
-
-/***/ }),
-/* 16 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-function RollerCoasterLiftersGeometry(curve, divisions) {
-
-    THREE.BufferGeometry.call(this);
-
-    var vertices = [];
-    var normals = [];
-
-    var quaternion = new THREE.Quaternion();
-
-    var up = new THREE.Vector3(0, 1, 0);
-
-    var point = new THREE.Vector3();
-    var tangent = new THREE.Vector3();
-
-    // shapes
-
-    var tube1 = [new THREE.Vector3(0, 0.05, -0.05), new THREE.Vector3(0, 0.05, 0.05), new THREE.Vector3(0, -0.05, 0)];
-
-    var tube2 = [new THREE.Vector3(-0.05, 0, 0.05), new THREE.Vector3(-0.05, 0, -0.05), new THREE.Vector3(0.05, 0, 0)];
-
-    var tube3 = [new THREE.Vector3(0.05, 0, -0.05), new THREE.Vector3(0.05, 0, 0.05), new THREE.Vector3(-0.05, 0, 0)];
-
-    var vector1 = new THREE.Vector3();
-    var vector2 = new THREE.Vector3();
-    var vector3 = new THREE.Vector3();
-    var vector4 = new THREE.Vector3();
-
-    var normal1 = new THREE.Vector3();
-    var normal2 = new THREE.Vector3();
-    var normal3 = new THREE.Vector3();
-    var normal4 = new THREE.Vector3();
-
-    function extrudeShape(shape, fromPoint, toPoint) {
-
-        for (var j = 0, jl = shape.length; j < jl; j++) {
-
-            var point1 = shape[j];
-            var point2 = shape[(j + 1) % jl];
-
-            vector1.copy(point1);
-            vector1.applyQuaternion(quaternion);
-            vector1.add(fromPoint);
-
-            vector2.copy(point2);
-            vector2.applyQuaternion(quaternion);
-            vector2.add(fromPoint);
-
-            vector3.copy(point2);
-            vector3.applyQuaternion(quaternion);
-            vector3.add(toPoint);
-
-            vector4.copy(point1);
-            vector4.applyQuaternion(quaternion);
-            vector4.add(toPoint);
-
-            vertices.push(vector1.x, vector1.y, vector1.z);
-            vertices.push(vector2.x, vector2.y, vector2.z);
-            vertices.push(vector4.x, vector4.y, vector4.z);
-
-            vertices.push(vector2.x, vector2.y, vector2.z);
-            vertices.push(vector3.x, vector3.y, vector3.z);
-            vertices.push(vector4.x, vector4.y, vector4.z);
-
-            //
-
-            normal1.copy(point1);
-            normal1.applyQuaternion(quaternion);
-            normal1.normalize();
-
-            normal2.copy(point2);
-            normal2.applyQuaternion(quaternion);
-            normal2.normalize();
-
-            normal3.copy(point2);
-            normal3.applyQuaternion(quaternion);
-            normal3.normalize();
-
-            normal4.copy(point1);
-            normal4.applyQuaternion(quaternion);
-            normal4.normalize();
-
-            normals.push(normal1.x, normal1.y, normal1.z);
-            normals.push(normal2.x, normal2.y, normal2.z);
-            normals.push(normal4.x, normal4.y, normal4.z);
-
-            normals.push(normal2.x, normal2.y, normal2.z);
-            normals.push(normal3.x, normal3.y, normal3.z);
-            normals.push(normal4.x, normal4.y, normal4.z);
-        }
-    };
-
-    var fromPoint = new THREE.Vector3();
-    var toPoint = new THREE.Vector3();
-
-    for (var i = 1; i <= divisions; i++) {
-
-        point.copy(curve.getPointAt(i / divisions));
-        tangent.copy(curve.getTangentAt(i / divisions));
-
-        var angle = Math.atan2(tangent.x, tangent.z);
-
-        quaternion.setFromAxisAngle(up, angle);
-
-        //
-
-        if (point.y > 10) {
-
-            fromPoint.set(-0.75, -0.35, 0);
-            fromPoint.applyQuaternion(quaternion);
-            fromPoint.add(point);
-
-            toPoint.set(0.75, -0.35, 0);
-            toPoint.applyQuaternion(quaternion);
-            toPoint.add(point);
-
-            extrudeShape(tube1, fromPoint, toPoint);
-
-            fromPoint.set(-0.7, -0.3, 0);
-            fromPoint.applyQuaternion(quaternion);
-            fromPoint.add(point);
-
-            toPoint.set(-0.7, -point.y, 0);
-            toPoint.applyQuaternion(quaternion);
-            toPoint.add(point);
-
-            extrudeShape(tube2, fromPoint, toPoint);
-
-            fromPoint.set(0.7, -0.3, 0);
-            fromPoint.applyQuaternion(quaternion);
-            fromPoint.add(point);
-
-            toPoint.set(0.7, -point.y, 0);
-            toPoint.applyQuaternion(quaternion);
-            toPoint.add(point);
-
-            extrudeShape(tube3, fromPoint, toPoint);
-        } else {
-
-            fromPoint.set(0, -0.2, 0);
-            fromPoint.applyQuaternion(quaternion);
-            fromPoint.add(point);
-
-            toPoint.set(0, -point.y, 0);
-            toPoint.applyQuaternion(quaternion);
-            toPoint.add(point);
-
-            extrudeShape(tube3, fromPoint, toPoint);
-        }
-    }
-
-    this.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-    this.addAttribute('normal', new THREE.BufferAttribute(new Float32Array(normals), 3));
-}
-
-RollerCoasterLiftersGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
-
-/* harmony default export */ __webpack_exports__["a"] = (RollerCoasterLiftersGeometry);
-
-/***/ }),
-/* 17 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = rollerCoasterShadowMeshFactory;
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__geometry__ = __webpack_require__(18);
-
-
-function rollerCoasterShadowMeshFactory(curve, divisions) {
-    const geometry = new __WEBPACK_IMPORTED_MODULE_0__geometry__["a" /* default */](curve, divisions);
-    const material = new THREE.MeshBasicMaterial({
-        color: 0x305000, depthWrite: false, transparent: true
-    });
-    const mesh = new THREE.Mesh(geometry, material);
-
-    mesh.position.y = 0.1;
-
-    return mesh;
-}
-
-/***/ }),
-/* 18 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-function RollerCoasterShadowGeometry(curve, divisions) {
-
-    THREE.BufferGeometry.call(this);
-
-    var vertices = [];
-
-    var up = new THREE.Vector3(0, 1, 0);
-    var forward = new THREE.Vector3();
-
-    var quaternion = new THREE.Quaternion();
-    var prevQuaternion = new THREE.Quaternion();
-    prevQuaternion.setFromAxisAngle(up, Math.PI / 2);
-
-    var point = new THREE.Vector3();
-
-    var prevPoint = new THREE.Vector3();
-    prevPoint.copy(curve.getPointAt(0));
-    prevPoint.y = 0;
-
-    var vector1 = new THREE.Vector3();
-    var vector2 = new THREE.Vector3();
-    var vector3 = new THREE.Vector3();
-    var vector4 = new THREE.Vector3();
-
-    for (var i = 1; i <= divisions; i++) {
-
-        point.copy(curve.getPointAt(i / divisions));
-        point.y = 0;
-
-        forward.subVectors(point, prevPoint);
-
-        var angle = Math.atan2(forward.x, forward.z);
-
-        quaternion.setFromAxisAngle(up, angle);
-
-        vector1.set(-0.3, 0, 0);
-        vector1.applyQuaternion(quaternion);
-        vector1.add(point);
-
-        vector2.set(0.3, 0, 0);
-        vector2.applyQuaternion(quaternion);
-        vector2.add(point);
-
-        vector3.set(0.3, 0, 0);
-        vector3.applyQuaternion(prevQuaternion);
-        vector3.add(prevPoint);
-
-        vector4.set(-0.3, 0, 0);
-        vector4.applyQuaternion(prevQuaternion);
-        vector4.add(prevPoint);
-
-        vertices.push(vector1.x, vector1.y, vector1.z);
-        vertices.push(vector2.x, vector2.y, vector2.z);
-        vertices.push(vector4.x, vector4.y, vector4.z);
-
-        vertices.push(vector2.x, vector2.y, vector2.z);
-        vertices.push(vector3.x, vector3.y, vector3.z);
-        vertices.push(vector4.x, vector4.y, vector4.z);
-
-        prevPoint.copy(point);
-        prevQuaternion.copy(quaternion);
-    }
-
-    this.addAttribute('position', new THREE.BufferAttribute(new Float32Array(vertices), 3));
-};
-
-RollerCoasterShadowGeometry.prototype = Object.create(THREE.BufferGeometry.prototype);
-
-/* harmony default export */ __webpack_exports__["a"] = (RollerCoasterShadowGeometry);
-
-/***/ }),
-/* 19 */
-/***/ (function(module, __webpack_exports__, __webpack_require__) {
-
-"use strict";
-/* harmony export (immutable) */ __webpack_exports__["a"] = groundMeshFactory;
-function groundMeshFactory(scene, width, height) {
-    const geometry = new THREE.PlaneBufferGeometry(width, height, 15, 15);
-    geometry.applyMatrix(new THREE.Matrix4().makeRotationX(-Math.PI / 2));
-
-    const positions = geometry.attributes.position.array;
-    const vertex = new THREE.Vector3();
-
-    for (let i = 0; i < positions.length; i += 3) {
-        vertex.fromArray(positions, i);
-        vertex.x += Math.random() * 10 - 5;
-        vertex.z += Math.random() * 10 - 5;
-        const distance = vertex.distanceTo(scene.position) / 5 - 25;
-        vertex.y = Math.random() * Math.max(0, distance);
-        vertex.toArray(positions, i);
-    }
-    geometry.computeVertexNormals();
-
-    const material = new THREE.MeshLambertMaterial({
-        color: 0x407000
-    });
-
-    const mesh = new THREE.Mesh(geometry, material);
-    scene.add(mesh);
-}
 
 /***/ })
 /******/ ]);

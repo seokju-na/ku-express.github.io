@@ -4,7 +4,8 @@
   "description": "KU express: roller coaster simluation for web vr",
   "main": "src/main.js",
   "scripts": {
-    "start": "./node_modules/.bin/webpack --watch"
+    "start": "./node_modules/.bin/webpack --watch",
+    "build": "./node_modules/.bin/webpack"
   },
   "repository": {
     "type": "git",
