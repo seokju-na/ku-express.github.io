@@ -123,7 +123,7 @@ function animate(time) {
     train.position.copy(position);
     tangent.copy(curve.getTangentAt(progress));
     velocity -= tangent.y * 0.0000001 * delta;
-    velocity = Math.max(0.0003, Math.min(0.0002, velocity));
+    velocity = Math.max(0.00004, Math.min(0.0002, velocity));
     train.lookAt(lookAt.copy(position).sub(tangent));
 
     control.update();
